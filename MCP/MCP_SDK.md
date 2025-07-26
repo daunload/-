@@ -61,7 +61,30 @@ server.registerResource(
     }]
   })
 );
+
+// 파라미터가 동적인 리소스
+server.registerResource(
+  "user-profile",
+  new ResourceTemplate("users://{userId}/profile", { list: undefined }),
+  {
+    title: "User Profile",
+    description: "User profile information"
+  },
+  async (uri, { userId }) => ({
+    contents: [{
+      uri: uri.href,
+      text: `Profile data for user ${userId}`
+    }]
+  })
+);
 ```
+
+MCP 서버 인스턴스가 생성된 후 서버의 초기 설정 단계에서 호출되어 해당 리소스 정의가 서버 내부적으로 저장된다.
+
+- LLM 은 대화 맥락에서 특정 정보를 필요로 할 때, 서버에 등록된 리소스 목록 (title, description, URI 템플릿 등)을 참조할 수 있다.
+- 즉, LLM은 `registerResource` 로 등록한 title, description을 참조하여 어떤 리소스가 필요한지를 판단한다.
+
+> tool 또한 동일하게 동작한다
 
 -----
 
@@ -139,6 +162,12 @@ server.registerPrompt(
   })
 );
 ```
+
+MCP 서버 인스턴스가 생성된 후 서버의 초기 설정 단계에서 호출되어 해당 프롬프트를 정의하고 등록한다.
+
+- 직접 LLM에 메시지를 보내는 대신, Prompt를 통해 정의된 템플릿과 로직을 사용하여 LLM에게 징의를 생성하고 전달할 수 있다.
+- LLM은 title과 description를 참조하여 어떤 프롬프트가 사용자의 의도에 적합한지 판단하고 결정한다.
+- 사용자와 프롬프트의 텍스트를 표준화하는 템플릿이라고 보면 됨
 
 -----
 
